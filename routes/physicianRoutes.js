@@ -383,9 +383,8 @@ router.put('/:physician_id', authenticateToken, PhysicianController.updatePhysic
  *         name: physician_id
  *         required: true
  *         schema:
- *           type: string
- *           format: uuid
- *         description: Physician UUID
+ *           type: integer
+ *         description: Physician ID
  *     requestBody:
  *       required: false
  *       content:
@@ -408,6 +407,48 @@ router.put('/:physician_id', authenticateToken, PhysicianController.updatePhysic
  *         description: Physician not found
  */
 router.patch('/:physician_id/deactivate', authenticateToken, PhysicianController.deactivatePhysician);
+
+/**
+ * @swagger
+ * /api/physicians/{physician_id}/activate:
+ *   patch:
+ *     summary: Activate physician (reactivate inactive physician)
+ *     tags: [Physicians]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: physician_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Physician ID
+ *     responses:
+ *       200:
+ *         description: Physician activated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: Success
+ *                 message:
+ *                   type: string
+ *                   example: Physician activated successfully
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Physician is already active
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - Physician does not belong to your agency
+ *       404:
+ *         description: Physician not found
+ */
+router.patch('/:physician_id/activate', authenticateToken, PhysicianController.activatePhysician);
 
 /**
  * @swagger

@@ -285,6 +285,59 @@ class PhysicianController {
         }
     }
 
+    static async activatePhysician(req, res) {
+        try {
+            const { physician_id } = req.params;
+            const agency_id = req.user.id;
+
+            const physician = await Physician.findById(physician_id);
+            if (!physician) {
+                return responseHandler.notFound(
+                    res,
+                    'Physician not found',
+                    404
+                );
+            }
+
+            // Check if physician belongs to the authenticated agency
+            if (physician.agency_id !== agency_id) {
+                return responseHandler.error(
+                    res,
+                    'You do not have permission to activate this physician',
+                    null,
+                    403
+                );
+            }
+
+            // Check if physician is already active
+            if (physician.status === 'active') {
+                return responseHandler.error(
+                    res,
+                    'Physician is already active',
+                    null,
+                    400
+                );
+            }
+
+            const activatedPhysician = await Physician.activate(physician_id, agency_id);
+
+            return responseHandler.success(
+                res,
+                'Physician activated successfully',
+                activatedPhysician,
+                200
+            );
+        } catch (error) {
+            console.error('Error activating physician:', error);
+            return responseHandler.error(
+                res,
+                'Failed to activate physician',
+                error.message,
+                500
+            );
+        }
+    }
+
     static async deletePhysician(req, res) {
         try {
             const { physician_id } = req.params;

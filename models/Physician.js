@@ -189,6 +189,23 @@ class Physician {
         return result.rows[0];
     }
 
+    static async activate(physician_id, updated_by) {
+        const pool = getPool();
+        const query = `
+      UPDATE physicians 
+      SET status = 'active',
+          deactivated_by = NULL,
+          deactivated_at = NULL,
+          deactivation_reason = NULL,
+          updated_by = $1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE physician_id = $2
+      RETURNING *
+    `;
+        const result = await pool.query(query, [updated_by, physician_id]);
+        return result.rows[0];
+    }
+
     static async delete(physician_id) {
         const pool = getPool();
         const query = 'DELETE FROM physicians WHERE physician_id = $1 RETURNING *';
