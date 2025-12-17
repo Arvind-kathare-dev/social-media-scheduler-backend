@@ -55,6 +55,7 @@ import swaggerSpec from './config/swagger.js';
 
 // Import routes
 import agencyRoutes from "./routes/agencyRoutes.js";
+import physicianRoutes from "./routes/physicianRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -63,7 +64,8 @@ app.get("/", (req, res) => {
     version: "1.0.0",
     documentation: "/api-docs",
     endpoints: {
-      agencies: "/api/agencies"
+      agencies: "/api/agencies",
+      physicians: "/api/physicians"
     }
   });
 });
@@ -76,6 +78,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // API Routes
 app.use("/api/agencies", agencyRoutes);
+app.use("/api/physicians", physicianRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -84,7 +87,8 @@ app.use((req, res) => {
     message: "Route not found",
     availableRoutes: {
       documentation: "/api-docs",
-      agencies: "/api/agencies"
+      agencies: "/api/agencies",
+      physicians: "/api/physicians"
     }
   });
 });
