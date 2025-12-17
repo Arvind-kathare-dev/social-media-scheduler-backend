@@ -56,6 +56,8 @@ import swaggerSpec from './config/swagger.js';
 // Import routes
 import agencyRoutes from "./routes/agencyRoutes.js";
 import physicianRoutes from "./routes/physicianRoutes.js";
+import orderStatesRoutes from "./routes/orderStateRoutes.js";
+import orderTypesRoutes from "./routes/orderTypeRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -79,6 +81,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 // API Routes
 app.use("/api/agencies", agencyRoutes);
 app.use("/api/physicians", physicianRoutes);
+app.use("/api/order-states", orderStatesRoutes);
+app.use("/api/order-types", orderTypesRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
