@@ -176,12 +176,13 @@ CREATE TABLE order_states (
 
 Internal States:
 
-- Draft
 - Unopened
 - Unsigned
 - Signed
 - Rejected
-- Delivered
+- Undelivered
+- Reopen
+- Draft
 
 External States:
 
