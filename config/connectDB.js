@@ -9,8 +9,8 @@ const connectDB = async () => {
     let config;
 
     if (process.env.POSTGRES_URL) {
-      // Remove sslmode parameter from connection string to avoid conflicts
-      const connectionString = process.env.POSTGRES_URL.replace(/[?&]sslmode=\w+/, '');
+      // Remove all query parameters from connection string
+      const connectionString = process.env.POSTGRES_URL.split('?')[0];
 
       config = {
         connectionString: connectionString,
