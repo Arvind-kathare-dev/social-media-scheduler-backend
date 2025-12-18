@@ -5,20 +5,27 @@ let pool;
 
 const connectDB = async () => {
   try {
-    const config = {
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      user: process.env.DB_USER,
-      database: process.env.DB_NAME,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-    };
-
-    // Only add password if it exists
-    if (process.env.DB_PASSWORD) {
-      config.password = process.env.DB_PASSWORD;
-    }
+    // For Vercel Postgres, use POSTGRES_URL if available
+    const config = process.env.POSTGRES_URL
+      ? {
+        connectionString: process.env.POSTGRES_URL,
+        ssl: {
+          rejectUnauthorized: false,
+        },
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+      }
+      : {
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT),
+        user: process.env.DB_USER,
+        database: process.env.DB_NAME,
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+        password: process.env.DB_PASSWORD,
+      }
 
     console.log("Attempting to connect with config:", {
       ...config,
