@@ -14,6 +14,10 @@ const options = {
         },
         servers: [
             {
+                url: 'https://ordina-backend.vercel.app',
+                description: 'Production server'
+            },
+            {
                 url: 'http://localhost:8000',
                 description: 'Development server'
             }
