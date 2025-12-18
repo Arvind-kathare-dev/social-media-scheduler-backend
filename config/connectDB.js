@@ -5,12 +5,15 @@ let pool;
 
 const connectDB = async () => {
   try {
-    // For Supabase/Vercel Postgres, use POSTGRES_URL if available
+    // For Supabase/Vercel Postgres, use non-pooling connection to avoid SSL issues
     let config;
 
-    if (process.env.POSTGRES_URL) {
+    // Prefer POSTGRES_URL_NON_POOLING (direct connection) over POSTGRES_URL (pooler)
+    const connectionUrl = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL;
+
+    if (connectionUrl) {
       // Remove all query parameters from connection string
-      const connectionString = process.env.POSTGRES_URL.split('?')[0];
+      const connectionString = connectionUrl.split('?')[0];
 
       config = {
         connectionString: connectionString,
