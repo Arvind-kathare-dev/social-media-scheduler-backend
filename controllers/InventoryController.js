@@ -5,28 +5,13 @@ class InventoryController {
     // Create new inventory item
     static async createInventoryItem(req, res) {
         try {
-            const {
-                item_name,
-                item_code,
-                description,
-                category,
-                quantity,
-                unit_of_measure,
-                reorder_level,
-                unit_price,
-                supplier_name,
-                supplier_contact,
-                location,
-                expiry_date,
-                batch_number,
-                is_active
-            } = req.body;
+            const { sku, item_name, current_stock, last_restock, cost_per_unit, supply_status } = req.body;
 
             // Validation
-            if (!item_name || !item_code) {
+            if (!sku || !item_name) {
                 return responseHandler.validationError(
                     res,
-                    'Item name and item code are required',
+                    'SKU and item name are required',
                     400
                 );
             }
@@ -34,20 +19,12 @@ class InventoryController {
             const created_by = req.user?.id || null;
 
             const newInventoryItem = await Inventory.create({
+                sku,
                 item_name,
-                item_code,
-                description,
-                category,
-                quantity,
-                unit_of_measure,
-                reorder_level,
-                unit_price,
-                supplier_name,
-                supplier_contact,
-                location,
-                expiry_date,
-                batch_number,
-                is_active,
+                current_stock,
+                last_restock,
+                cost_per_unit,
+                supply_status,
                 created_by
             });
 
@@ -63,7 +40,7 @@ class InventoryController {
             if (error.code === '23505') {
                 return responseHandler.error(
                     res,
-                    'Inventory item with this code already exists',
+                    'Inventory item with this SKU already exists',
                     error.message,
                     409
                 );
@@ -110,12 +87,12 @@ class InventoryController {
         }
     }
 
-    // Get inventory item by item code
-    static async getInventoryItemByCode(req, res) {
+    // Get inventory item by SKU
+    static async getInventoryItemBySku(req, res) {
         try {
-            const { code } = req.params;
+            const { sku } = req.params;
 
-            const inventoryItem = await Inventory.findByItemCode(code);
+            const inventoryItem = await Inventory.findBySku(sku);
 
             if (!inventoryItem) {
                 return responseHandler.notFound(
@@ -145,24 +122,12 @@ class InventoryController {
     // Get all inventory items with filters
     static async getAllInventoryItems(req, res) {
         try {
-            const { is_active, category, search, low_stock } = req.query;
+            const { supply_status } = req.query;
 
             const filters = {};
 
-            if (is_active !== undefined) {
-                filters.is_active = is_active === 'true';
-            }
-
-            if (category) {
-                filters.category = category;
-            }
-
-            if (search) {
-                filters.search = search;
-            }
-
-            if (low_stock) {
-                filters.low_stock = low_stock;
+            if (supply_status !== undefined) {
+                filters.supply_status = supply_status;
             }
 
             const inventoryItems = await Inventory.findAll(filters);
@@ -187,108 +152,11 @@ class InventoryController {
         }
     }
 
-    // Get low stock items
-    static async getLowStockItems(req, res) {
-        try {
-            const lowStockItems = await Inventory.getLowStockItems();
-
-            return responseHandler.success(
-                res,
-                'Low stock items retrieved successfully',
-                {
-                    count: lowStockItems.length,
-                    items: lowStockItems
-                },
-                200
-            );
-        } catch (error) {
-            console.error('Error fetching low stock items:', error);
-            return responseHandler.error(
-                res,
-                'Failed to fetch low stock items',
-                error.message,
-                500
-            );
-        }
-    }
-
-    // Get items expiring soon
-    static async getExpiringSoonItems(req, res) {
-        try {
-            const { days } = req.query;
-            const daysParam = days ? parseInt(days) : 30;
-
-            const expiringItems = await Inventory.getExpiringSoon(daysParam);
-
-            return responseHandler.success(
-                res,
-                `Items expiring within ${daysParam} days retrieved successfully`,
-                {
-                    count: expiringItems.length,
-                    days: daysParam,
-                    items: expiringItems
-                },
-                200
-            );
-        } catch (error) {
-            console.error('Error fetching expiring items:', error);
-            return responseHandler.error(
-                res,
-                'Failed to fetch expiring items',
-                error.message,
-                500
-            );
-        }
-    }
-
-    // Get items by category
-    static async getItemsByCategory(req, res) {
-        try {
-            const { category } = req.params;
-
-            const items = await Inventory.getByCategory(category);
-
-            return responseHandler.success(
-                res,
-                `Items in category '${category}' retrieved successfully`,
-                {
-                    count: items.length,
-                    category,
-                    items
-                },
-                200
-            );
-        } catch (error) {
-            console.error('Error fetching items by category:', error);
-            return responseHandler.error(
-                res,
-                'Failed to fetch items by category',
-                error.message,
-                500
-            );
-        }
-    }
-
     // Update inventory item
     static async updateInventoryItem(req, res) {
         try {
             const { id } = req.params;
-            const {
-                item_name,
-                item_code,
-                description,
-                category,
-                quantity,
-                unit_of_measure,
-                reorder_level,
-                unit_price,
-                supplier_name,
-                supplier_contact,
-                location,
-                expiry_date,
-                batch_number,
-                is_active
-            } = req.body;
+            const { sku, item_name, current_stock, last_restock, cost_per_unit, supply_status } = req.body;
 
             const updated_by = req.user?.id || null;
 
@@ -303,20 +171,12 @@ class InventoryController {
             }
 
             const updatedItem = await Inventory.update(id, {
+                sku,
                 item_name,
-                item_code,
-                description,
-                category,
-                quantity,
-                unit_of_measure,
-                reorder_level,
-                unit_price,
-                supplier_name,
-                supplier_contact,
-                location,
-                expiry_date,
-                batch_number,
-                is_active,
+                current_stock,
+                last_restock,
+                cost_per_unit,
+                supply_status,
                 updated_by
             });
 
@@ -340,7 +200,7 @@ class InventoryController {
             if (error.code === '23505') {
                 return responseHandler.error(
                     res,
-                    'Inventory item with this code already exists',
+                    'Inventory item with this SKU already exists',
                     error.message,
                     409
                 );
@@ -355,8 +215,8 @@ class InventoryController {
         }
     }
 
-    // Update quantity (add or subtract)
-    static async updateQuantity(req, res) {
+    // Update stock (add or subtract)
+    static async updateStock(req, res) {
         try {
             const { id } = req.params;
             const { quantity_change } = req.body;
@@ -381,19 +241,19 @@ class InventoryController {
                 );
             }
 
-            const updatedItem = await Inventory.updateQuantity(id, quantity_change, updated_by);
+            const updatedItem = await Inventory.updateStock(id, quantity_change, updated_by);
 
             return responseHandler.success(
                 res,
-                'Inventory quantity updated successfully',
+                'Stock updated successfully',
                 updatedItem,
                 200
             );
         } catch (error) {
-            console.error('Error updating inventory quantity:', error);
+            console.error('Error updating stock:', error);
             return responseHandler.error(
                 res,
-                'Failed to update inventory quantity',
+                'Failed to update stock',
                 error.message,
                 500
             );
@@ -437,80 +297,6 @@ class InventoryController {
             return responseHandler.error(
                 res,
                 'Failed to delete inventory item',
-                error.message,
-                500
-            );
-        }
-    }
-
-    // Deactivate inventory item
-    static async deactivateInventoryItem(req, res) {
-        try {
-            const { id } = req.params;
-            const updated_by = req.user?.id || null;
-
-            const inventoryItem = await Inventory.findById(id);
-            if (!inventoryItem) {
-                return responseHandler.notFound(
-                    res,
-                    'Inventory item not found',
-                    404
-                );
-            }
-
-            const deactivatedItem = await Inventory.update(id, {
-                is_active: false,
-                updated_by
-            });
-
-            return responseHandler.success(
-                res,
-                'Inventory item deactivated successfully',
-                deactivatedItem,
-                200
-            );
-        } catch (error) {
-            console.error('Error deactivating inventory item:', error);
-            return responseHandler.error(
-                res,
-                'Failed to deactivate inventory item',
-                error.message,
-                500
-            );
-        }
-    }
-
-    // Activate inventory item
-    static async activateInventoryItem(req, res) {
-        try {
-            const { id } = req.params;
-            const updated_by = req.user?.id || null;
-
-            const inventoryItem = await Inventory.findById(id);
-            if (!inventoryItem) {
-                return responseHandler.notFound(
-                    res,
-                    'Inventory item not found',
-                    404
-                );
-            }
-
-            const activatedItem = await Inventory.update(id, {
-                is_active: true,
-                updated_by
-            });
-
-            return responseHandler.success(
-                res,
-                'Inventory item activated successfully',
-                activatedItem,
-                200
-            );
-        } catch (error) {
-            console.error('Error activating inventory item:', error);
-            return responseHandler.error(
-                res,
-                'Failed to activate inventory item',
                 error.message,
                 500
             );
