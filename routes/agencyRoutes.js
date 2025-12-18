@@ -117,7 +117,7 @@ router.post('/login', AgencyController.loginAgency);
  *                 agency_no: AG25MG01
  *                 license_no: CA-458921
  *                 hospital_name: SAN Francisco General Hospital
- *                 sign_threshold: 2 Days
+ *                 sign_threshold: 2
  *                 is_active: true
  *                 role: Admin
  *                 created_at: 2024-01-01T00:00:00.000Z
