@@ -59,7 +59,7 @@ import physicianRoutes from "./routes/physicianRoutes.js";
 import orderStatesRoutes from "./routes/orderStateRoutes.js";
 import orderTypesRoutes from "./routes/orderTypeRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
-import supplyRoutes from "./routes/supplyRoutes.js"
+import supplyRoutes from "./routes/supplyRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -74,7 +74,6 @@ app.get("/", (req, res) => {
       orderTypes: "/api/order-types",
       inventory: "/api/inventory",
       supplies: "/api/supplies"
-
     }
   });
 });
