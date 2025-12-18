@@ -44,6 +44,7 @@ const router = express.Router();
  *           example:
  *             sku: AD-1234
  *             item_name: Adult Diapers
+ *             location: Warehouse A
  *             current_stock: 252
  *             last_restock: 2025-06-20
  *             cost_per_unit: 11
@@ -70,6 +71,8 @@ const router = express.Router();
  *                     sku:
  *                       type: string
  *                     item_name:
+ *                       type: string
+ *                     location:
  *                       type: string
  *                     current_stock:
  *                       type: number
@@ -134,6 +137,12 @@ router.post('/', InventoryController.createInventoryItem);
  *           enum: [Active, Discontinued, Out of Stock, Low Stock]
  *         description: Filter by supply status
  *         example: Active
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Filter by location
+ *         example: Warehouse A
  *     responses:
  *       200:
  *         description: Inventory items retrieved successfully
@@ -165,6 +174,8 @@ router.post('/', InventoryController.createInventoryItem);
  *                             type: string
  *                           item_name:
  *                             type: string
+ *                           location:
+ *                             type: string
  *                           current_stock:
  *                             type: number
  *                           last_restock:
@@ -188,6 +199,7 @@ router.post('/', InventoryController.createInventoryItem);
  *                   - id: 1
  *                     sku: AD-1234
  *                     item_name: Adult Diapers
+ *                     location: Warehouse A
  *                     current_stock: 252
  *                     last_restock: 2025-06-20
  *                     cost_per_unit: 11
@@ -197,6 +209,7 @@ router.post('/', InventoryController.createInventoryItem);
  *                   - id: 2
  *                     sku: GN-5387
  *                     item_name: Gauzes
+ *                     location: Warehouse B
  *                     current_stock: 4
  *                     last_restock: 2025-07-05
  *                     cost_per_unit: 14
@@ -265,6 +278,7 @@ router.get('/', InventoryController.getAllInventoryItems);
  *                 id: 1
  *                 sku: AD-1234
  *                 item_name: Adult Diapers
+ *                 location: Warehouse A
  *                 current_stock: 252
  *                 last_restock: 2025-06-20
  *                 cost_per_unit: 11
@@ -350,6 +364,8 @@ router.get('/sku/:sku', InventoryController.getInventoryItemBySku);
  *                 type: string
  *               item_name:
  *                 type: string
+ *               location:
+ *                 type: string
  *               current_stock:
  *                 type: number
  *               last_restock:
@@ -363,6 +379,7 @@ router.get('/sku/:sku', InventoryController.getInventoryItemBySku);
  *           example:
  *             sku: AD-1234
  *             item_name: Adult Diapers Updated
+ *             location: Warehouse C
  *             current_stock: 300
  *             last_restock: 2025-06-25
  *             cost_per_unit: 12

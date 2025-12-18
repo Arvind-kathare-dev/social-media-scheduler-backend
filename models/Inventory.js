@@ -4,6 +4,7 @@ class Inventory {
     static async create({
         sku,
         item_name,
+        location,
         current_stock,
         last_restock,
         cost_per_unit,
@@ -12,11 +13,11 @@ class Inventory {
     }) {
         const pool = getPool();
         const query = `
-            INSERT INTO inventory (sku, item_name, current_stock, last_restock, cost_per_unit, supply_status, created_by, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            INSERT INTO inventory (sku, item_name, location, current_stock, last_restock, cost_per_unit, supply_status, created_by, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             RETURNING *
         `;
-        const values = [sku, item_name, current_stock, last_restock, cost_per_unit, supply_status, created_by];
+        const values = [sku, item_name, location, current_stock, last_restock, cost_per_unit, supply_status, created_by];
         const result = await pool.query(query, values);
         return result.rows[0];
     }
@@ -35,14 +36,20 @@ class Inventory {
         return result.rows[0];
     }
 
-    static async findAll({ supply_status } = {}) {
+    static async findAll({ supply_status, location } = {}) {
         const pool = getPool();
         let query = 'SELECT * FROM inventory WHERE 1=1';
         const values = [];
+        let paramCount = 1;
 
         if (supply_status !== undefined) {
-            query += ' AND supply_status = $1';
+            query += ` AND supply_status = $${paramCount++}`;
             values.push(supply_status);
+        }
+
+        if (location !== undefined) {
+            query += ` AND location = $${paramCount++}`;
+            values.push(location);
         }
 
         query += ' ORDER BY item_name';
@@ -50,7 +57,7 @@ class Inventory {
         return result.rows;
     }
 
-    static async update(id, { sku, item_name, current_stock, last_restock, cost_per_unit, supply_status, updated_by }) {
+    static async update(id, { sku, item_name, location, current_stock, last_restock, cost_per_unit, supply_status, updated_by }) {
         const pool = getPool();
         const fields = [];
         const values = [];
@@ -63,6 +70,10 @@ class Inventory {
         if (item_name) {
             fields.push(`item_name = $${paramCount++}`);
             values.push(item_name);
+        }
+        if (location !== undefined) {
+            fields.push(`location = $${paramCount++}`);
+            values.push(location);
         }
         if (current_stock !== undefined) {
             fields.push(`current_stock = $${paramCount++}`);

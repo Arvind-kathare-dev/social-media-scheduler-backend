@@ -5,7 +5,7 @@ class InventoryController {
     // Create new inventory item
     static async createInventoryItem(req, res) {
         try {
-            const { sku, item_name, current_stock, last_restock, cost_per_unit, supply_status } = req.body;
+            const { sku, item_name, location, current_stock, last_restock, cost_per_unit, supply_status } = req.body;
 
             // Validation
             if (!sku || !item_name) {
@@ -21,6 +21,7 @@ class InventoryController {
             const newInventoryItem = await Inventory.create({
                 sku,
                 item_name,
+                location,
                 current_stock,
                 last_restock,
                 cost_per_unit,
@@ -122,12 +123,16 @@ class InventoryController {
     // Get all inventory items with filters
     static async getAllInventoryItems(req, res) {
         try {
-            const { supply_status } = req.query;
+            const { supply_status, location } = req.query;
 
             const filters = {};
 
             if (supply_status !== undefined) {
                 filters.supply_status = supply_status;
+            }
+
+            if (location !== undefined) {
+                filters.location = location;
             }
 
             const inventoryItems = await Inventory.findAll(filters);
@@ -156,7 +161,7 @@ class InventoryController {
     static async updateInventoryItem(req, res) {
         try {
             const { id } = req.params;
-            const { sku, item_name, current_stock, last_restock, cost_per_unit, supply_status } = req.body;
+            const { sku, item_name, location, current_stock, last_restock, cost_per_unit, supply_status } = req.body;
 
             const updated_by = req.user?.id || null;
 
@@ -173,6 +178,7 @@ class InventoryController {
             const updatedItem = await Inventory.update(id, {
                 sku,
                 item_name,
+                location,
                 current_stock,
                 last_restock,
                 cost_per_unit,

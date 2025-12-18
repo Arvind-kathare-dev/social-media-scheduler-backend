@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS inventory (
     
     -- 2. Basic Information (Mandatory)
     item_name VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
     
     -- 3. Stock & Quantity
     current_stock DECIMAL(10, 2) NOT NULL DEFAULT 0,
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS inventory (
 -- Indexes for performance optimization
 CREATE INDEX idx_inventory_sku ON inventory(sku);
 CREATE INDEX idx_inventory_item_name ON inventory(item_name);
+CREATE INDEX idx_inventory_location ON inventory(location);
 CREATE INDEX idx_inventory_current_stock ON inventory(current_stock);
 CREATE INDEX idx_inventory_supply_status ON inventory(supply_status);
 CREATE INDEX idx_inventory_last_restock ON inventory(last_restock) WHERE last_restock IS NOT NULL;
@@ -55,6 +57,7 @@ COMMENT ON TABLE inventory IS 'Stores inventory items for inventory management';
 COMMENT ON COLUMN inventory.id IS 'Auto-incrementing integer primary key';
 COMMENT ON COLUMN inventory.sku IS 'Unique SKU (Stock Keeping Unit) for the inventory item';
 COMMENT ON COLUMN inventory.item_name IS 'Name of the inventory item';
+COMMENT ON COLUMN inventory.location IS 'Storage location of the inventory item';
 COMMENT ON COLUMN inventory.current_stock IS 'Current quantity in stock';
 COMMENT ON COLUMN inventory.last_restock IS 'Date of last restock';
 COMMENT ON COLUMN inventory.cost_per_unit IS 'Cost per unit';
