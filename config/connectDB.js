@@ -5,27 +5,35 @@ let pool;
 
 const connectDB = async () => {
   try {
-    // For Vercel Postgres, use POSTGRES_URL if available
-    const config = process.env.POSTGRES_URL
-      ? {
-        connectionString: process.env.POSTGRES_URL,
+    // For Supabase/Vercel Postgres, use POSTGRES_URL if available
+    let config;
+
+    if (process.env.POSTGRES_URL) {
+      // Remove sslmode parameter from connection string to avoid conflicts
+      const connectionString = process.env.POSTGRES_URL.replace(/[?&]sslmode=\w+/, '');
+
+      config = {
+        connectionString: connectionString,
         ssl: {
           rejectUnauthorized: false,
         },
         max: 10,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000,
-      }
-      : {
+      };
+    } else {
+      // Local development configuration
+      config = {
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT),
         user: process.env.DB_USER,
         database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
         max: 10,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000,
-        password: process.env.DB_PASSWORD,
-      }
+      };
+    }
 
     console.log("Attempting to connect with config:", {
       ...config,
