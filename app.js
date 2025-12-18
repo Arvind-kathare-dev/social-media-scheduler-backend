@@ -26,10 +26,11 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
         imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "http://localhost:8000", "http://localhost:*"]
+        connectSrc: ["'self'", "http://localhost:8000", "http://localhost:*"],
+        fontSrc: ["'self'", "https://cdnjs.cloudflare.com"]
       }
     }
   })
@@ -78,11 +79,26 @@ app.get("/", (req, res) => {
   });
 });
 
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+// Swagger Documentation with CDN assets for Vercel compatibility
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Ordina API Documentation'
+  customSiteTitle: 'Ordina API Documentation',
+  swaggerOptions: {
+    url: '/api-docs/swagger.json',
+  },
+  customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css',
+  customJs: [
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js'
+  ]
 }));
+
+// Serve swagger spec as JSON
+app.get('/api-docs/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 // API Routes
 app.use("/api/agencies", agencyRoutes);
