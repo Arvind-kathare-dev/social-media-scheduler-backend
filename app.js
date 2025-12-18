@@ -58,6 +58,7 @@ import agencyRoutes from "./routes/agencyRoutes.js";
 import physicianRoutes from "./routes/physicianRoutes.js";
 import orderStatesRoutes from "./routes/orderStateRoutes.js";
 import orderTypesRoutes from "./routes/orderTypeRoutes.js";
+import inventoryRoutes from "./routes/inventoryRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -67,7 +68,10 @@ app.get("/", (req, res) => {
     documentation: "/api-docs",
     endpoints: {
       agencies: "/api/agencies",
-      physicians: "/api/physicians"
+      physicians: "/api/physicians",
+      orderStates: "/api/order-states",
+      orderTypes: "/api/order-types",
+      inventory: "/api/inventory"
     }
   });
 });
@@ -83,6 +87,7 @@ app.use("/api/agencies", agencyRoutes);
 app.use("/api/physicians", physicianRoutes);
 app.use("/api/order-states", orderStatesRoutes);
 app.use("/api/order-types", orderTypesRoutes);
+app.use("/api/inventory", inventoryRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -92,7 +97,10 @@ app.use((req, res) => {
     availableRoutes: {
       documentation: "/api-docs",
       agencies: "/api/agencies",
-      physicians: "/api/physicians"
+      physicians: "/api/physicians",
+      orderStates: "/api/order-states",
+      orderTypes: "/api/order-types",
+      inventory: "/api/inventory"
     }
   });
 });
