@@ -1,30 +1,34 @@
-const db = require('../config/connectDB');
+import { getPool } from '../config/connectDB.js';
 
 class User {
     static async create({ name, email, password, role = 'physician', is_active = true }) {
+        const pool = getPool();
         const query = `
       INSERT INTO users (name, email, password, role, is_active)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
         const values = [name, email, password, role, is_active];
-        const result = await db.query(query, values);
+        const result = await pool.query(query, values);
         return result.rows[0];
     }
 
     static async findById(id) {
+        const pool = getPool();
         const query = 'SELECT * FROM users WHERE id = $1';
-        const result = await db.query(query, [id]);
+        const result = await pool.query(query, [id]);
         return result.rows[0];
     }
 
     static async findByEmail(email) {
+        const pool = getPool();
         const query = 'SELECT * FROM users WHERE email = $1';
-        const result = await db.query(query, [email]);
+        const result = await pool.query(query, [email]);
         return result.rows[0];
     }
 
     static async findAll({ role, is_active } = {}) {
+        const pool = getPool();
         let query = 'SELECT * FROM users WHERE 1=1';
         const values = [];
         let paramCount = 1;
@@ -39,11 +43,12 @@ class User {
         }
 
         query += ' ORDER BY created_at DESC';
-        const result = await db.query(query, values);
+        const result = await pool.query(query, values);
         return result.rows;
     }
 
-    static async update(id, { name, email, role, is_active }) {
+    static async update(id, { name, email, role, is_active, password }) {
+        const pool = getPool();
         const fields = [];
         const values = [];
         let paramCount = 1;
@@ -64,6 +69,12 @@ class User {
             fields.push(`is_active = $${paramCount++}`);
             values.push(is_active);
         }
+        if (password) {
+            fields.push(`password = $${paramCount++}`);
+            values.push(password);
+        }
+
+        if (fields.length === 0) return null;
 
         fields.push(`updated_at = CURRENT_TIMESTAMP`);
         values.push(id);
@@ -74,15 +85,16 @@ class User {
       WHERE id = $${paramCount}
       RETURNING *
     `;
-        const result = await db.query(query, values);
+        const result = await pool.query(query, values);
         return result.rows[0];
     }
 
     static async delete(id) {
+        const pool = getPool();
         const query = 'DELETE FROM users WHERE id = $1 RETURNING *';
-        const result = await db.query(query, [id]);
+        const result = await pool.query(query, [id]);
         return result.rows[0];
     }
 }
 
-module.exports = User;
+export default User;

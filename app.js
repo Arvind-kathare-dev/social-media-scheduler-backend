@@ -54,13 +54,7 @@ app.use(function (req, res, next) {
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 
-// Import routes
-import agencyRoutes from "./routes/agencyRoutes.js";
-import physicianRoutes from "./routes/physicianRoutes.js";
-import orderStatesRoutes from "./routes/orderStateRoutes.js";
-import orderTypesRoutes from "./routes/orderTypeRoutes.js";
-import inventoryRoutes from "./routes/inventoryRoutes.js";
-import supplyRoutes from "./routes/supplyRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -69,12 +63,7 @@ app.get("/", (req, res) => {
     version: "1.0.0",
     documentation: "/api-docs",
     endpoints: {
-      agencies: "/api/agencies",
-      physicians: "/api/physicians",
-      orderStates: "/api/order-states",
-      orderTypes: "/api/order-types",
-      inventory: "/api/inventory",
-      supplies: "/api/supplies"
+      auth: "/api/auth"
     }
   });
 });
@@ -101,12 +90,7 @@ app.get('/api-docs/swagger.json', (req, res) => {
 });
 
 // API Routes
-app.use("/api/agencies", agencyRoutes);
-app.use("/api/physicians", physicianRoutes);
-app.use("/api/order-states", orderStatesRoutes);
-app.use("/api/order-types", orderTypesRoutes);
-app.use("/api/inventory", inventoryRoutes);
-app.use("/api/supplies", supplyRoutes);
+app.use("/api/auth", authRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -115,12 +99,8 @@ app.use((req, res) => {
     message: "Route not found",
     availableRoutes: {
       documentation: "/api-docs",
-      agencies: "/api/agencies",
-      physicians: "/api/physicians",
-      orderStates: "/api/order-states",
-      orderTypes: "/api/order-types",
-      inventory: "/api/inventory",
-      supplies: "/api/supplies"
+      auth: "/api/auth",
+      auth: "/api/auth"
     }
   });
 });
