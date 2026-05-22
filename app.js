@@ -55,6 +55,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -91,6 +92,7 @@ app.get('/api-docs/swagger.json', (req, res) => {
 
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {

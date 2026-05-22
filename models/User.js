@@ -1,14 +1,14 @@
 import { getPool } from '../config/connectDB.js';
 
 class User {
-    static async create({ name, email, password, role = 'physician', is_active = true }) {
+    static async create({ name, email, password, role = 'Editor', mobile_number = null, is_active = true }) {
         const pool = getPool();
         const query = `
-      INSERT INTO users (name, email, password, role, is_active)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO users (name, email, password, role, mobile_number, is_active)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `;
-        const values = [name, email, password, role, is_active];
+        const values = [name, email, password, role, mobile_number, is_active];
         const result = await pool.query(query, values);
         return result.rows[0];
     }
@@ -47,7 +47,7 @@ class User {
         return result.rows;
     }
 
-    static async update(id, { name, email, role, is_active, password }) {
+    static async update(id, { name, email, role, mobile_number, is_active, password }) {
         const pool = getPool();
         const fields = [];
         const values = [];
@@ -64,6 +64,10 @@ class User {
         if (role) {
             fields.push(`role = $${paramCount++}`);
             values.push(role);
+        }
+        if (mobile_number !== undefined) {
+            fields.push(`mobile_number = $${paramCount++}`);
+            values.push(mobile_number);
         }
         if (is_active !== undefined) {
             fields.push(`is_active = $${paramCount++}`);
