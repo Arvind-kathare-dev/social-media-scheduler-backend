@@ -60,7 +60,7 @@ import userRoutes from "./routes/userRoutes.js";
 // Root route
 app.get("/", (req, res) => {
   res.json({
-    message: "Welcome to Ordina API",
+    message: "Welcome to Social Media Scheduler API",
     version: "1.0.0",
     documentation: "/api-docs",
     endpoints: {
@@ -73,7 +73,7 @@ app.get("/", (req, res) => {
 app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Ordina API Documentation',
+  customSiteTitle: 'Social Media Scheduler API Documentation',
   swaggerOptions: {
     url: '/api-docs/swagger.json',
   },
