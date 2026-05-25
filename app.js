@@ -35,8 +35,8 @@ app.use(
     }
   })
 ); // Security middleware with CSP configuration for Swagger
-app.use(express.json()); // Parse incoming JSON requests
-app.use(express.urlencoded({ extended: false })); // Parse URL-encoded bodies
+app.use(express.json({ limit: '50mb' })); // Parse incoming JSON requests
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // Parse URL-encoded bodies
 
 // Additional CORS headers
 app.use(function (req, res, next) {
@@ -56,6 +56,7 @@ import swaggerSpec from './config/swagger.js';
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import taskRoutes from "./routes/taskRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -93,6 +94,7 @@ app.get('/api-docs/swagger.json', (req, res) => {
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
