@@ -37,6 +37,20 @@ async function run() {
       );
     `;
     await pool.query(taskQuery);
+
+    const notificationQuery = `
+      CREATE TABLE IF NOT EXISTS notifications (
+          id SERIAL PRIMARY KEY,
+          user_id INT REFERENCES users(id) ON DELETE CASCADE,
+          message TEXT NOT NULL,
+          type VARCHAR(50),
+          task_id INT REFERENCES tasks(id) ON DELETE CASCADE,
+          is_read BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+    await pool.query(notificationQuery);
+    console.log('✅ Successfully created the notifications table!');
     
     // Add new columns if they don't exist
     const alterQuery = `
@@ -49,7 +63,14 @@ async function run() {
     `;
     await pool.query(alterQuery);
 
-    console.log('✅ Successfully created and updated the tasks table!');
+    const alterNotificationQuery = `
+      ALTER TABLE notifications
+      ADD COLUMN IF NOT EXISTS type VARCHAR(50),
+      ADD COLUMN IF NOT EXISTS task_id INT REFERENCES tasks(id) ON DELETE CASCADE;
+    `;
+    await pool.query(alterNotificationQuery);
+
+    console.log('✅ Successfully created and updated the tasks and notifications tables!');
   } catch (e) {
     console.error('❌ Error creating table:', e);
   } finally {

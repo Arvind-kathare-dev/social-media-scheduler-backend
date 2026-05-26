@@ -47,8 +47,10 @@ class Task {
             values.push(status);
         }
         if (assigned_to) {
-            query += ` AND t.assigned_to = $${paramCount++}`;
+            query += ` AND (t.assigned_to = $${paramCount} OR t.assigned_to_multi @> $${paramCount+1}::jsonb)`;
             values.push(assigned_to);
+            values.push(JSON.stringify([String(assigned_to)]));
+            paramCount += 2;
         }
         if (created_by) {
             query += ` AND t.created_by = $${paramCount++}`;

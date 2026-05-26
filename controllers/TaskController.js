@@ -1,4 +1,5 @@
 import Task from '../models/Task.js';
+import { createNotification } from './NotificationController.js';
 
 export const createTask = async (req, res) => {
     try {
@@ -23,6 +24,23 @@ export const createTask = async (req, res) => {
             visual_reference,
             notes
         });
+
+        const io = req.app.get('io');
+        if (io) {
+            const allAssignees = assigned_to_multi || (assigned_to ? [assigned_to] : []);
+            for (const userId of allAssignees) {
+                if (userId && String(userId) !== String(req.user.id)) {
+                    await createNotification(
+                        userId, 
+                        `You have been assigned a new task: "${title}"`, 
+                        'task_assigned', 
+                        task.id || task._id, 
+                        io
+                    );
+                }
+            }
+            io.emit('tasks_refresh_needed');
+        }
 
         res.status(201).json({
             message: 'Task created successfully',
@@ -98,6 +116,29 @@ export const updateTask = async (req, res) => {
             notes
         });
 
+        const io = req.app.get('io');
+        if (io) {
+            const allAssignees = assigned_to_multi || (assigned_to ? [assigned_to] : []);
+            
+            // Notify current assignees
+            for (const userId of allAssignees) {
+                if (userId && String(userId) !== String(req.user.id)) {
+                    await createNotification(
+                        userId,
+                        `A task assigned to you was updated: "${title || existingTask.title}"`,
+                        'task_assigned',
+                        id,
+                        io
+                    );
+                }
+            }
+            
+            // Emit a general task updated event to the task room so anyone viewing it gets it updated
+            io.to(`task_${id}`).emit('task_updated', updatedTask);
+            // We can also emit a global event to let all connected clients know they might need to refresh their tasks list
+            io.emit('tasks_refresh_needed');
+        }
+
         res.status(200).json({
             message: 'Task updated successfully',
             task: updatedTask
@@ -144,6 +185,11 @@ export const deleteTask = async (req, res) => {
         }
 
         await Task.delete(id);
+
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('tasks_refresh_needed');
+        }
 
         res.status(200).json({
             message: 'Task deleted successfully'

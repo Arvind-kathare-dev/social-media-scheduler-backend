@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
@@ -15,12 +17,60 @@ dotenv.config();
 
 // Initialize express app
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // In production, restrict to frontend URL
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true
+  }
+});
+
+app.set('io', io); // Make io accessible in controllers
+
+io.on('connection', (socket) => {
+  console.log('🔌 A user connected:', socket.id);
+  
+  // Join personal room for user-specific notifications (like assignment)
+  socket.on('joinUserRoom', (userId) => {
+    if (userId) {
+      socket.join(`user_${userId}`);
+      console.log(`👤 User joined their personal room: user_${userId}`);
+    }
+  });
+
+  // Join task-specific room for comment updates
+  socket.on('joinTaskRoom', (taskId) => {
+    if (taskId) {
+      socket.join(`task_${taskId}`);
+      console.log(`📋 User joined task room: task_${taskId}`);
+    }
+  });
+
+  socket.on('leaveTaskRoom', (taskId) => {
+    if (taskId) {
+      socket.leave(`task_${taskId}`);
+      console.log(`📋 User left task room: task_${taskId}`);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('🔌 User disconnected:', socket.id);
+  });
+});
 
 // Set port from environment variables, fallback to 3000
 const port = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors()); // Enable CORS
+app.use(cors({
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    return callback(null, true);
+  },
+  credentials: true
+})); // Enable proper CORS
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -38,17 +88,6 @@ app.use(
 app.use(express.json({ limit: '50mb' })); // Parse incoming JSON requests
 app.use(express.urlencoded({ limit: '50mb', extended: true })); // Parse URL-encoded bodies
 
-// Additional CORS headers
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, PATCH, DELETE");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With, content-type, Authorization"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  next();
-});
 
 // Import Swagger
 import swaggerUi from 'swagger-ui-express';
@@ -57,6 +96,8 @@ import swaggerSpec from './config/swagger.js';
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -95,6 +136,8 @@ app.get('/api-docs/swagger.json', (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/tasks", commentRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -116,7 +159,7 @@ const startServer = async () => {
     await connectDB();
     console.log("✅ Database connected successfully");
 
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`✅ Server is running on port ${port}`);
       console.log(`📚 Swagger API Documentation available at: http://localhost:${port}/api-docs`);
       console.log(`🚀 API Base URL: http://localhost:${port}/api`);
