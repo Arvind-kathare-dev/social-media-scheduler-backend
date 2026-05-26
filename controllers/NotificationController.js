@@ -76,24 +76,13 @@ export const createNotification = async (userId, message, type, taskId, io) => {
         }
         
         // Send email based on notification type
-        if (['task_assigned', 'mention', 'new_message'].includes(type)) {
+        if (type === 'task_assigned') {
             const userResult = await pool.query(`SELECT name, email FROM users WHERE id = $1`, [userId]);
             if (userResult.rows.length > 0) {
                 const user = userResult.rows[0];
                 if (user.email) {
-                    let subject = 'New Notification';
-                    let heading = 'Notification';
-                    
-                    if (type === 'task_assigned') {
-                        subject = 'You have a new task assigned';
-                        heading = 'New Task Assignment';
-                    } else if (type === 'mention') {
-                        subject = 'You were mentioned in a task';
-                        heading = 'New Mention';
-                    } else if (type === 'new_message') {
-                        subject = 'New comment on your task';
-                        heading = 'New Comment';
-                    }
+                    let subject = 'You have a new task assigned';
+                    let heading = 'New Task Assignment';
                     
                     const htmlContent = `
                         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">

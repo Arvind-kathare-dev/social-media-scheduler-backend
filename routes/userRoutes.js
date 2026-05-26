@@ -61,7 +61,7 @@ router.post('/', authenticateToken, authorizeRoles('admin'), UserController.crea
  *       200:
  *         description: List of users
  */
-router.get('/', authenticateToken, authorizeRoles('admin'), UserController.getUsers);
+router.get('/', authenticateToken, UserController.getUsers);
 
 /**
  * @swagger

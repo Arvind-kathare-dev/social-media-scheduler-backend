@@ -78,15 +78,19 @@ app.use(
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
         scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", "data:", "https:", "http:"],
         connectSrc: ["'self'", "http://localhost:8000", "http://localhost:*"],
         fontSrc: ["'self'", "https://cdnjs.cloudflare.com"]
       }
-    }
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 ); // Security middleware with CSP configuration for Swagger
 app.use(express.json({ limit: '50mb' })); // Parse incoming JSON requests
 app.use(express.urlencoded({ limit: '50mb', extended: true })); // Parse URL-encoded bodies
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // Import Swagger
@@ -98,6 +102,8 @@ import userRoutes from "./routes/userRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import folderRoutes from "./routes/folderRoutes.js";
+import assetRoutes from "./routes/assetRoutes.js";
 
 // Root route
 app.get("/", (req, res) => {
@@ -138,6 +144,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/tasks", commentRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/folders", folderRoutes);
+app.use("/api/assets", assetRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
