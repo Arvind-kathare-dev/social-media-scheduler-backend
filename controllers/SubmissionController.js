@@ -3,8 +3,8 @@ import Task from '../models/Task.js';
 
 export const createSubmission = async (req, res) => {
     try {
-        const taskId = parseInt(req.params.id, 10);
-        if (isNaN(taskId)) return res.status(400).json({ status: 'error', message: 'Invalid task ID' });
+        const taskId = req.params.id;
+        if (!taskId) return res.status(400).json({ status: 'error', message: 'Invalid task ID' });
 
         const { live_link, doc_content, designer_note } = req.body;
         const submitted_by = req.user.id;
@@ -50,8 +50,8 @@ export const createSubmission = async (req, res) => {
 
 export const getSubmissionsByTask = async (req, res) => {
     try {
-        const taskId = parseInt(req.params.id, 10);
-        if (isNaN(taskId)) return res.status(400).json({ status: 'error', message: 'Invalid task ID' });
+        const taskId = req.params.id;
+        if (!taskId) return res.status(400).json({ status: 'error', message: 'Invalid task ID' });
 
         const submissions = await Submission.findByTaskId(taskId);
         res.status(200).json({ status: 'success', data: submissions });
@@ -63,10 +63,10 @@ export const getSubmissionsByTask = async (req, res) => {
 
 export const updateSubmissionStatus = async (req, res) => {
     try {
-        const submissionId = parseInt(req.params.submissionId, 10);
+        const submissionId = req.params.submissionId;
         const { status } = req.body;
 
-        if (isNaN(submissionId) || !status) {
+        if (!submissionId || !status) {
             return res.status(400).json({ status: 'error', message: 'Invalid request' });
         }
 

@@ -1,14 +1,16 @@
 import { getPool } from '../config/connectDB.js';
+import { v7 as uuidv7 } from 'uuid';
 
 class User {
     static async create({ name, email, password, role = 'Editor', mobile_number = null, is_active = true }) {
+        const id = uuidv7();
         const pool = getPool();
         const query = `
-      INSERT INTO users (name, email, password, role, mobile_number, is_active)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO users (id, name, email, password, role, mobile_number, is_active)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
-        const values = [name, email, password, role, mobile_number, is_active];
+        const values = [id, name, email, password, role, mobile_number, is_active];
         const result = await pool.query(query, values);
         return result.rows[0];
     }

@@ -9,7 +9,7 @@ async function run() {
   try {
     const query = `
       CREATE TABLE IF NOT EXISTS users (
-          id SERIAL PRIMARY KEY,
+          id VARCHAR(255) PRIMARY KEY,
           name VARCHAR(255) NOT NULL,
           email VARCHAR(255) UNIQUE NOT NULL,
           password VARCHAR(255) NOT NULL,
@@ -24,13 +24,13 @@ async function run() {
 
     const taskQuery = `
       CREATE TABLE IF NOT EXISTS tasks (
-          id SERIAL PRIMARY KEY,
+          id VARCHAR(255) PRIMARY KEY,
           title VARCHAR(255) NOT NULL,
           description TEXT,
           status VARCHAR(50) DEFAULT 'todo',
           priority VARCHAR(50) DEFAULT 'medium',
-          assigned_to INT REFERENCES users(id) ON DELETE SET NULL,
-          created_by INT REFERENCES users(id) ON DELETE SET NULL,
+          assigned_to VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
+          created_by VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
           due_date TIMESTAMP,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -40,11 +40,11 @@ async function run() {
 
     const notificationQuery = `
       CREATE TABLE IF NOT EXISTS notifications (
-          id SERIAL PRIMARY KEY,
-          user_id INT REFERENCES users(id) ON DELETE CASCADE,
+          id VARCHAR(255) PRIMARY KEY,
+          user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
           message TEXT NOT NULL,
           type VARCHAR(50),
-          task_id INT REFERENCES tasks(id) ON DELETE CASCADE,
+          task_id VARCHAR(255) REFERENCES tasks(id) ON DELETE CASCADE,
           is_read BOOLEAN DEFAULT false,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -66,7 +66,7 @@ async function run() {
     const alterNotificationQuery = `
       ALTER TABLE notifications
       ADD COLUMN IF NOT EXISTS type VARCHAR(50),
-      ADD COLUMN IF NOT EXISTS task_id INT REFERENCES tasks(id) ON DELETE CASCADE;
+      ADD COLUMN IF NOT EXISTS task_id VARCHAR(255) REFERENCES tasks(id) ON DELETE CASCADE;
     `;
     await pool.query(alterNotificationQuery);
 

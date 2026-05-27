@@ -9,10 +9,10 @@ async function run() {
   try {
     const query = `
       CREATE TABLE IF NOT EXISTS folders (
-          id SERIAL PRIMARY KEY,
+          id VARCHAR(255) PRIMARY KEY,
           name VARCHAR(255) NOT NULL,
           assigned_to JSONB DEFAULT '[]',
-          created_by INT REFERENCES users(id) ON DELETE SET NULL,
+          created_by VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

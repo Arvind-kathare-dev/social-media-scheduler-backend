@@ -1,14 +1,17 @@
 import { getPool } from '../config/connectDB.js';
+import { v7 as uuidv7 } from 'uuid';
 
 class Submission {
     static async create({ task_id, submitted_by, files, live_link, doc_content, designer_note }) {
+        const id = uuidv7();
         const pool = getPool();
         const query = `
-            INSERT INTO submissions (task_id, submitted_by, files, live_link, doc_content, designer_note)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO submissions (id, task_id, submitted_by, files, live_link, doc_content, designer_note)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
         `;
         const values = [
+            id,
             task_id,
             submitted_by,
             JSON.stringify(files || []),

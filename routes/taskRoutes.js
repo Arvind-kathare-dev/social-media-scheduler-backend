@@ -215,6 +215,8 @@ router.patch("/:id/status", authenticateToken, TaskController.updateTaskStatus);
  *       404:
  *         description: Task not found
  */
+router.delete("/:id", authenticateToken, TaskController.deleteTask);
+
 router.post(
   "/:id/submissions",
   authenticateToken,

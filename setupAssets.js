@@ -9,12 +9,12 @@ async function run() {
   try {
     const query = `
       CREATE TABLE IF NOT EXISTS assets (
-          id SERIAL PRIMARY KEY,
+          id VARCHAR(255) PRIMARY KEY,
           title VARCHAR(255) NOT NULL,
-          folder_id INT REFERENCES folders(id) ON DELETE CASCADE,
+          folder_id VARCHAR(255) REFERENCES folders(id) ON DELETE CASCADE,
           platform VARCHAR(100),
           copy TEXT,
-          author_id INT REFERENCES users(id) ON DELETE SET NULL,
+          author_id VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
           files JSONB DEFAULT '[]',
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

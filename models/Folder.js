@@ -1,14 +1,17 @@
 import { getPool } from '../config/connectDB.js';
+import { v7 as uuidv7 } from 'uuid';
 
 class Folder {
     static async create({ name, assigned_to, created_by, platforms }) {
+        const id = uuidv7();
         const pool = getPool();
         const query = `
-      INSERT INTO folders (name, assigned_to, created_by, platforms)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO folders (id, name, assigned_to, created_by, platforms)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
         const values = [
+            id,
             name,
             assigned_to ? JSON.stringify(assigned_to) : '[]',
             created_by,

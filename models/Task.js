@@ -1,15 +1,17 @@
 import { getPool } from '../config/connectDB.js';
+import { v7 as uuidv7 } from 'uuid';
 
 class Task {
     static async create({ title, description, status = 'todo', priority = 'medium', assigned_to, assigned_to_multi, created_by, due_date, tone, hashtags, platforms, visual_reference, notes }) {
+        const id = uuidv7();
         const pool = getPool();
         const query = `
-      INSERT INTO tasks (title, description, status, priority, assigned_to, assigned_to_multi, created_by, due_date, tone, hashtags, platforms, visual_reference, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      INSERT INTO tasks (id, title, description, status, priority, assigned_to, assigned_to_multi, created_by, due_date, tone, hashtags, platforms, visual_reference, notes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *
     `;
         const values = [
-            title, description, status, priority, assigned_to, 
+            id, title, description, status, priority, assigned_to, 
             assigned_to_multi ? JSON.stringify(assigned_to_multi) : '[]', 
             created_by, due_date, tone || null, 
             hashtags ? JSON.stringify(hashtags) : null, 

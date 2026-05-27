@@ -1,5 +1,6 @@
 import { getPool } from "../config/connectDB.js";
 import { createNotification } from "./NotificationController.js";
+import { v7 as uuidv7 } from 'uuid';
 
 // Fetch comments for a specific task (including user details)
 export const getCommentsByTask = async (req, res) => {
@@ -50,12 +51,13 @@ export const addComment = async (req, res) => {
 
   try {
     const pool = getPool();
+    const id = uuidv7();
     const query = `
-      INSERT INTO comments (task_id, user_id, content, parent_id)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO comments (id, task_id, user_id, content, parent_id)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-    const result = await pool.query(query, [taskId, user_id, content, parent_id || null]);
+    const result = await pool.query(query, [id, taskId, user_id, content, parent_id || null]);
     let newComment = result.rows[0];
 
     // Fetch user details for the new comment

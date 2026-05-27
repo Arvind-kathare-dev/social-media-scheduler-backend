@@ -10,9 +10,9 @@ async function run() {
   try {
     const query = `
       CREATE TABLE IF NOT EXISTS submissions (
-          id SERIAL PRIMARY KEY,
-          task_id INT REFERENCES tasks(id) ON DELETE CASCADE,
-          submitted_by INT REFERENCES users(id) ON DELETE SET NULL,
+          id VARCHAR(255) PRIMARY KEY,
+          task_id VARCHAR(255) REFERENCES tasks(id) ON DELETE CASCADE,
+          submitted_by VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
           files JSONB DEFAULT '[]',
           live_link TEXT,
           doc_content TEXT,

@@ -36,11 +36,11 @@ export const uploadAssets = async (req, res) => {
             }];
         }
 
-        const parsedFolderId = folderId && folderId !== 'null' ? parseInt(folderId, 10) : null;
+        const parsedFolderId = folderId && folderId !== 'null' ? folderId : null;
         
         const newAsset = await Asset.create({
             title,
-            folder_id: isNaN(parsedFolderId) ? null : parsedFolderId,
+            folder_id: parsedFolderId,
             platform,
             copy,
             author_id,
@@ -59,7 +59,7 @@ export const getAssets = async (req, res) => {
         const { folderId } = req.query;
         let assets;
         if (folderId) {
-            assets = await Asset.findByFolder(parseInt(folderId, 10));
+            assets = await Asset.findByFolder(folderId);
         } else {
             assets = await Asset.findAll();
         }
@@ -74,12 +74,12 @@ export const deleteAsset = async (req, res) => {
     try {
         const { id } = req.params;
 
-        if (isNaN(parseInt(id, 10))) {
+        if (!id) {
             return res.status(400).json({ status: 'error', message: 'Invalid asset ID' });
         }
 
         // Fetch asset first to get its file paths
-        const asset = await Asset.findById(parseInt(id, 10));
+        const asset = await Asset.findById(id);
         if (!asset) {
             return res.status(404).json({ status: 'error', message: 'Asset not found' });
         }
@@ -100,7 +100,7 @@ export const deleteAsset = async (req, res) => {
         });
 
         // Delete the DB record
-        await Asset.delete(parseInt(id, 10));
+        await Asset.delete(id);
 
         res.status(200).json({ status: 'success', message: 'Asset deleted successfully' });
     } catch (error) {

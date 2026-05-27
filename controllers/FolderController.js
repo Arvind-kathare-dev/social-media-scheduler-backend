@@ -38,7 +38,7 @@ export const updateFolder = async (req, res) => {
     try {
         const { id } = req.params;
         
-        if (isNaN(parseInt(id, 10))) {
+        if (!id) {
             return res.status(400).json({ status: 'error', message: 'Invalid folder ID' });
         }
 
@@ -61,7 +61,7 @@ export const deleteFolder = async (req, res) => {
     try {
         const { id } = req.params;
 
-        if (isNaN(parseInt(id, 10))) {
+        if (!id) {
             return res.status(400).json({ status: 'error', message: 'Invalid folder ID' });
         }
 

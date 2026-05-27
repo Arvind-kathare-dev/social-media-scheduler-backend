@@ -1,14 +1,17 @@
 import { getPool } from '../config/connectDB.js';
+import { v7 as uuidv7 } from 'uuid';
 
 class Asset {
     static async create({ title, folder_id, platform, copy, author_id, files }) {
+        const id = uuidv7();
         const pool = getPool();
         const query = `
-      INSERT INTO assets (title, folder_id, platform, copy, author_id, files)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO assets (id, title, folder_id, platform, copy, author_id, files)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
         const values = [
+            id,
             title,
             folder_id || null,
             platform || 'General',

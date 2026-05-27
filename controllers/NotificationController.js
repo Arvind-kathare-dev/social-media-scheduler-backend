@@ -1,5 +1,6 @@
 import { getPool } from '../config/connectDB.js';
 import { sendEmail } from '../utils/emailHandler.js';
+import { v7 as uuidv7 } from 'uuid';
 
 // Get notifications for the authenticated user
 export const getNotifications = async (req, res) => {
@@ -62,10 +63,11 @@ export const createNotification = async (userId, message, type, taskId, io) => {
         if (!userId) return;
         const pool = getPool();
         
+        const id = uuidv7();
         const result = await pool.query(
-            `INSERT INTO notifications (user_id, message, type, task_id) 
-             VALUES ($1, $2, $3, $4) RETURNING *`,
-            [userId, message, type, taskId || null]
+            `INSERT INTO notifications (id, user_id, message, type, task_id) 
+             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+            [id, userId, message, type, taskId || null]
         );
         
         const newNotification = result.rows[0];

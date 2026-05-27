@@ -10,11 +10,11 @@ async function setupNotifications() {
 
     const createNotificationsTable = `
       CREATE TABLE IF NOT EXISTS notifications (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
         message TEXT NOT NULL,
         type VARCHAR(50),
-        task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
+        task_id VARCHAR(255) REFERENCES tasks(id) ON DELETE CASCADE,
         is_read BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

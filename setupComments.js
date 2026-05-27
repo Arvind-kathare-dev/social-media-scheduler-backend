@@ -10,10 +10,10 @@ async function setupComments() {
 
     const createCommentsTable = `
       CREATE TABLE IF NOT EXISTS comments (
-        id SERIAL PRIMARY KEY,
-        task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
-        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-        parent_id INTEGER REFERENCES comments(id) ON DELETE CASCADE,
+        id VARCHAR(255) PRIMARY KEY,
+        task_id VARCHAR(255) REFERENCES tasks(id) ON DELETE CASCADE,
+        user_id VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
+        parent_id VARCHAR(255) REFERENCES comments(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
