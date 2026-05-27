@@ -21,12 +21,16 @@ export const uploadAssets = async (req, res) => {
 
         let files = [];
         if (req.files && req.files.length > 0) {
-            files = req.files.map(file => ({
-                url: `${process.env.BACKEND_URL || 'http://localhost:8000'}/uploads/${file.filename}`,
-                name: file.originalname,
-                type: file.mimetype,
-                platform: platform || 'General'
-            }));
+            files = req.files.map(file => {
+                const base64 = file.buffer.toString('base64');
+                const dataUrl = `data:${file.mimetype};base64,${base64}`;
+                return {
+                    url: dataUrl,
+                    name: file.originalname,
+                    type: file.mimetype,
+                    platform: platform || 'General'
+                };
+            });
         } else if (externalLink) {
             files = [{
                 url: externalLink,
@@ -92,8 +96,12 @@ export const deleteAsset = async (req, res) => {
                 if (filename) {
                     const filePath = path.join(__dirname, '..', 'uploads', filename);
                     if (fs.existsSync(filePath)) {
-                        fs.unlinkSync(filePath);
-                        console.log(`🗑️ Deleted file: ${filePath}`);
+                        try {
+                            fs.unlinkSync(filePath);
+                            console.log(`🗑️ Deleted file: ${filePath}`);
+                        } catch (err) {
+                            console.warn(`Could not delete file ${filePath}:`, err.message);
+                        }
                     }
                 }
             }
@@ -104,7 +112,7 @@ export const deleteAsset = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'Asset deleted successfully' });
     } catch (error) {
-        console.error('Error deleting asset:', error);
-        res.status(500).json({ status: 'error', message: 'Internal server error' });
+        console.error('Error deleting asset:', error.message, error.stack);
+        res.status(500).json({ status: 'error', message: 'Internal server error: ' + error.message });
     }
 };
