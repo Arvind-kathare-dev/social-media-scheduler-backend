@@ -1,8 +1,28 @@
-import express from 'express';
-import * as TaskController from '../controllers/TaskController.js';
-import { authenticateToken } from '../middlewares/authMiddleware.js';
+import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import * as TaskController from "../controllers/TaskController.js";
+import * as SubmissionController from "../controllers/SubmissionController.js";
+import { authenticateToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = "uploads/";
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
 
 /**
  * @swagger
@@ -34,7 +54,7 @@ const router = express.Router();
  *       200:
  *         description: List of tasks
  */
-router.get('/', authenticateToken, TaskController.getTasks);
+router.get("/", authenticateToken, TaskController.getTasks);
 
 /**
  * @swagger
@@ -57,7 +77,7 @@ router.get('/', authenticateToken, TaskController.getTasks);
  *       404:
  *         description: Task not found
  */
-router.get('/:id', authenticateToken, TaskController.getTaskById);
+router.get("/:id", authenticateToken, TaskController.getTaskById);
 
 /**
  * @swagger
@@ -95,7 +115,7 @@ router.get('/:id', authenticateToken, TaskController.getTaskById);
  *       400:
  *         description: Validation error
  */
-router.post('/', authenticateToken, TaskController.createTask);
+router.post("/", authenticateToken, TaskController.createTask);
 
 /**
  * @swagger
@@ -138,7 +158,7 @@ router.post('/', authenticateToken, TaskController.createTask);
  *       404:
  *         description: Task not found
  */
-router.put('/:id', authenticateToken, TaskController.updateTask);
+router.put("/:id", authenticateToken, TaskController.updateTask);
 
 /**
  * @swagger
@@ -172,7 +192,7 @@ router.put('/:id', authenticateToken, TaskController.updateTask);
  *       404:
  *         description: Task not found
  */
-router.patch('/:id/status', authenticateToken, TaskController.updateTaskStatus);
+router.patch("/:id/status", authenticateToken, TaskController.updateTaskStatus);
 
 /**
  * @swagger
@@ -195,6 +215,21 @@ router.patch('/:id/status', authenticateToken, TaskController.updateTaskStatus);
  *       404:
  *         description: Task not found
  */
-router.delete('/:id', authenticateToken, TaskController.deleteTask);
+router.post(
+  "/:id/submissions",
+  authenticateToken,
+  upload.array("files", 10),
+  SubmissionController.createSubmission,
+);
+router.get(
+  "/:id/submissions",
+  authenticateToken,
+  SubmissionController.getSubmissionsByTask,
+);
+router.patch(
+  "/submissions/:submissionId/status",
+  authenticateToken,
+  SubmissionController.updateSubmissionStatus,
+);
 
 export default router;

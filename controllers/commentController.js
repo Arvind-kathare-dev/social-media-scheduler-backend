@@ -72,48 +72,24 @@ export const addComment = async (req, res) => {
       // Emit to task room
       io.to(`task_${taskId}`).emit('new_comment', newComment);
       
-      // Emit notification to involved users (creator and assignees)
-      const taskRes = await pool.query(`SELECT created_by, assigned_to, assigned_to_multi, title FROM tasks WHERE id = $1`, [taskId]);
+      // Emit notification ONLY if a user is mentioned
+      const taskRes = await pool.query(`SELECT title FROM tasks WHERE id = $1`, [taskId]);
       if (taskRes.rows.length > 0) {
         const task = taskRes.rows[0];
         
-        // Gather all users related to the task
-        const involvedUsers = new Set();
-        if (task.created_by) involvedUsers.add(task.created_by);
-        if (task.assigned_to) involvedUsers.add(task.assigned_to);
-        
-        // If assigned_to_multi is stored as JSON array in postgres, we parse it or use directly if already parsed
-        if (task.assigned_to_multi) {
-            let multiArr = task.assigned_to_multi;
-            if (typeof multiArr === 'string') {
-                try { multiArr = JSON.parse(multiArr); } catch(e) {}
-            }
-            if (Array.isArray(multiArr)) {
-                multiArr.forEach(id => involvedUsers.add(id));
-            }
-        }
-
         // Extract raw text for mention detection
         const rawText = content.replace(/<[^>]*>?/gm, '');
         
-        // Notify everyone involved except the sender
-        for (const userId of involvedUsers) {
-            if (userId && String(userId) !== String(user_id)) {
-                // Determine if they were mentioned
-                let type = 'new_message';
-                let msg = `${newComment.user_name} commented on task "${task.title}"`;
-                
-                // Fetch the user's name to see if it's in the text
-                const userRes = await pool.query('SELECT name FROM users WHERE id = $1', [userId]);
-                if (userRes.rows.length > 0) {
-                    const userName = userRes.rows[0].name;
-                    if (rawText.includes(`@${userName}`)) {
-                        type = 'mention';
-                        msg = `${newComment.user_name} mentioned you in a comment on "${task.title}"`;
-                    }
+        // Fetch ALL users to check for mentions
+        const allUsersRes = await pool.query('SELECT id, name FROM users');
+        const allUsers = allUsersRes.rows;
+        
+        for (const user of allUsers) {
+            if (String(user.id) !== String(user_id)) {
+                if (rawText.includes(`@${user.name}`)) {
+                    const msg = `${newComment.user_name} mentioned you in a comment on "${task.title}"`;
+                    await createNotification(user.id, msg, 'mention', taskId, io);
                 }
-                
-                await createNotification(userId, msg, type, taskId, io);
             }
         }
       }
