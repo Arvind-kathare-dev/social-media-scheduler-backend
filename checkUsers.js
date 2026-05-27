@@ -3,7 +3,7 @@ import connectDB from "./config/connectDB.js";
 
 async function main() {
   const pool = await connectDB();
-  const res = await pool.query("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'comments';");
+  const res = await pool.query("SELECT id FROM users LIMIT 5;");
   console.table(res.rows);
   process.exit(0);
 }

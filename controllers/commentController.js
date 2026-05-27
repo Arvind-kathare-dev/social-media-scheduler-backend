@@ -80,7 +80,7 @@ export const addComment = async (req, res) => {
         const task = taskRes.rows[0];
         
         // Extract raw text for mention detection
-        const rawText = content.replace(/<[^>]*>?/gm, '');
+        const rawText = (content || '').replace(/<[^>]*>?/gm, '');
         
         // Fetch ALL users to check for mentions
         const allUsersRes = await pool.query('SELECT id, name FROM users');
@@ -99,7 +99,10 @@ export const addComment = async (req, res) => {
 
     res.status(201).json({ status: "Success", data: newComment });
   } catch (error) {
-    console.error("Error adding comment:", error);
-    res.status(500).json({ status: "Error", message: "Failed to add comment." });
+    console.error("Error adding comment:", error.message, error.stack);
+    if (error.code === '23503') { // Foreign key violation
+        return res.status(401).json({ status: "Error", message: "User session invalid or task not found. Please login again." });
+    }
+    res.status(500).json({ status: "Error", message: "Failed to add comment. Details: " + error.message });
   }
 };
