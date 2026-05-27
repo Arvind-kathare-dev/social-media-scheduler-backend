@@ -17,12 +17,16 @@ export const createSubmission = async (req, res) => {
 
         let files = [];
         if (req.files && req.files.length > 0) {
-            files = req.files.map(file => ({
-                url: `${process.env.BACKEND_URL || 'http://localhost:8000'}/uploads/${file.filename}`,
-                name: file.originalname,
-                type: file.mimetype,
-                platform: req.body.platform || 'General'
-            }));
+            files = req.files.map(file => {
+                const base64 = file.buffer.toString('base64');
+                const dataUrl = `data:${file.mimetype};base64,${base64}`;
+                return {
+                    url: dataUrl,
+                    name: file.originalname,
+                    type: file.mimetype,
+                    platform: req.body.platform || 'General'
+                };
+            });
         }
 
         if (files.length === 0 && !live_link && !doc_content) {
